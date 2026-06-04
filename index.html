@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Kitchen Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Kitchen Hub"/>
+<meta name="theme-color" content="#1a1916"/>
+<style>
+:root{
+  --bg:#f5f4f0;--surface:#fff;--border:#e0ddd6;--border-strong:#c8c4bb;
+  --text:#1a1916;--text-muted:#7a776e;--text-hint:#b0ada5;
+  --accent:#1a1916;--accent-fg:#fff;
+  --success-bg:#edf7ed;--success-text:#2d6e2d;--success-border:#b2d9b2;
+  --warn-bg:#fdf6e3;--warn-text:#8a6500;--warn-border:#f0d88a;
+  --danger-bg:#fdecea;--danger-text:#c0392b;
+  --radius:12px;--radius-sm:8px;--font:'Lexend',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* Header */
+.app-header{background:var(--accent);color:var(--accent-fg);padding:20px 20px 16px;display:flex;align-items:flex-end;justify-content:space-between;}
+.company-name{font-size:22px;font-weight:300;letter-spacing:-.3px;line-height:1.2;}
+.company-name strong{font-weight:600;}
+.header-sub{font-size:12px;opacity:.5;margin-top:2px;font-family:monospace;letter-spacing:.04em;}
+.settings-btn{background:rgba(255,255,255,.12);border:none;color:var(--accent-fg);width:36px;height:36px;border-radius:50%;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.settings-btn:active{background:rgba(255,255,255,.22);}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:16px;}
+
+/* Tool cards */
+.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px 14px;text-decoration:none;color:var(--text);display:flex;flex-direction:column;min-height:158px;cursor:pointer;transition:transform .1s,box-shadow .1s;opacity:0;animation:fadeUp .3s ease forwards;}
+.tool-card:active{transform:scale(.97);}
+.tool-card.unconfigured{opacity:.5 !important;}
+.tool-icon-wrap{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:12px;flex-shrink:0;}
+.tool-name{font-size:14px;font-weight:500;margin-bottom:4px;line-height:1.3;}
+.tool-desc{font-size:12px;color:var(--text-muted);flex:1;line-height:1.5;}
+.tool-status{margin-top:10px;min-height:18px;}
+.status-ok  {font-size:11px;font-family:monospace;color:var(--success-text);}
+.status-warn{font-size:11px;font-family:monospace;color:var(--warn-text);}
+.status-muted{font-size:11px;font-family:monospace;color:var(--text-hint);}
+.status-configure{font-size:11px;font-family:monospace;color:var(--text-hint);font-style:italic;}
+
+/* Card stagger animation */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.tool-card:nth-child(1){animation-delay:.04s;}
+.tool-card:nth-child(2){animation-delay:.08s;}
+.tool-card:nth-child(3){animation-delay:.12s;}
+.tool-card:nth-child(4){animation-delay:.16s;}
+.tool-card:nth-child(5){animation-delay:.20s;}
+.tool-card:nth-child(6){animation-delay:.24s;}
+.tool-card:nth-child(7){animation-delay:.28s;}
+.tool-card:nth-child(8){animation-delay:.32s;}
+
+/* Settings overlay */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40;display:none;}
+.overlay.open{display:block;}
+.settings-panel{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-radius:16px 16px 0 0;z-index:50;max-height:88vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s ease;}
+.settings-panel.open{transform:translateY(0);}
+.settings-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.settings-title{font-size:16px;font-weight:500;}
+.settings-close{font-size:24px;color:var(--text-muted);background:none;border:none;cursor:pointer;line-height:1;}
+.settings-body{padding:16px 20px;overflow-y:auto;flex:1;}
+.settings-section{font-size:11px;font-family:monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin:16px 0 10px;}
+.settings-section:first-child{margin-top:0;}
+.settings-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.settings-row-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+.settings-row-label{font-size:13px;font-weight:500;width:110px;flex-shrink:0;}
+.settings-row input{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);outline:none;}
+.settings-row input:focus{border-color:var(--accent);}
+.save-btn{width:100%;padding:13px;border-radius:var(--radius-sm);font-size:15px;font-family:var(--font);cursor:pointer;border:none;background:var(--accent);color:var(--accent-fg);margin-top:16px;}
+
+/* Company name input */
+.company-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:16px;font-family:var(--font);background:var(--surface);color:var(--text);outline:none;}
+.company-input:focus{border-color:var(--accent);}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--accent-fg);padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99;white-space:nowrap;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div>
+    <div class="company-name" id="display-name"><strong>Kitchen</strong> Hub</div>
+    <div class="header-sub" id="display-date"></div>
+  </div>
+  <button class="settings-btn" onclick="openSettings()" title="Configure">⚙</button>
+</header>
+
+<div class="grid" id="tool-grid"></div>
+
+<!-- Settings overlay -->
+<div class="overlay" id="overlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-header">
+    <span class="settings-title">Configure dashboard</span>
+    <button class="settings-close" onclick="closeSettings()">×</button>
+  </div>
+  <div class="settings-body">
+    <div class="settings-section">Kitchen / site name</div>
+    <input class="company-input" id="s-company" placeholder="e.g. Soho Kitchen"/>
+
+    <div class="settings-section">Tool URLs</div>
+    <div id="url-inputs"></div>
+
+    <button class="save-btn" onclick="saveSettings()">Save</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SK_DASH = 'dashboard_settings_v1';
+
+// ── Tool definitions ────────────────────────────────────────
+const TOOLS = [
+  {
+    id:'batch',
+    name:'Batch Record',
+    icon:'🧾',
+    color:'#fdf3e0',
+    desc:'Log production batches & ingredients',
+    statusFn(){
+      const r=ls('batch_records_v1');
+      const n=r.filter(x=>x.date===tod()).length;
+      return n?{t:'ok',s:n+' batch'+(n!==1?'es':'')+' today'}:{t:'muted',s:'No batches today'};
+    }
+  },
+  {
+    id:'templog',
+    name:'Temp Log',
+    icon:'🌡️',
+    color:'#fce8e3',
+    desc:'Cooking & cooling temperature checks',
+    statusFn(){
+      const r=ls('batch_records_v1');
+      const cut=Date.now()-72*60*60*1000;
+      const n=r.filter(x=>x.productCategory==='cooked'&&new Date(x.savedAt||x.date).getTime()>cut&&(x.cookTemp==null||x.coolTemp==null)).length;
+      return n?{t:'warn',s:n+' check'+(n!==1?'s':'')+' pending'}:{t:'ok',s:'All temps logged'};
+    }
+  },
+  {
+    id:'deliveries',
+    name:'Deliveries',
+    icon:'📦',
+    color:'#e3eff9',
+    desc:'Record incoming deliveries',
+    statusFn(){
+      const r=ls('delivery_records_v3');
+      const n=r.filter(x=>x.date===tod()).length;
+      return n?{t:'ok',s:n+' deliver'+(n!==1?'ies':'y')+' today'}:{t:'muted',s:'No deliveries today'};
+    }
+  },
+  {
+    id:'dispatch',
+    name:'Dispatch',
+    icon:'🚚',
+    color:'#ece5f5',
+    desc:'Log outgoing orders',
+    statusFn(){
+      const r=ls('dispatch_records_v1');
+      const n=r.filter(x=>x.date===tod()).length;
+      return n?{t:'ok',s:n+' dispatch'+(n!==1?'es':'')+' today'}:{t:'muted',s:'No dispatches today'};
+    }
+  },
+  {
+    id:'stockcheck',
+    name:'Stock Check',
+    icon:'📊',
+    color:'#e5f2e5',
+    desc:'Check and record stock levels',
+    statusFn(){
+      const r=ls('stock_checks_v1');
+      if(!r.length) return {t:'muted',s:'No checks recorded'};
+      const days=Math.floor((Date.now()-new Date(r[0].savedAt||r[0].date).getTime())/86400000);
+      if(days===0) return {t:'ok',s:'Checked today'};
+      if(days<=1)  return {t:'muted',s:'Checked yesterday'};
+      if(days<=7)  return {t:'muted',s:'Last checked '+days+'d ago'};
+      return {t:'warn',s:'Not checked in '+days+' days'};
+    }
+  },
+  {
+    id:'knife',
+    name:'Knife Registry',
+    icon:'🔪',
+    color:'#f5e5e5',
+    desc:'Daily knife checks & register',
+    statusFn(){
+      const r=ls('knife_checks_v1');
+      const t=tod();
+      const today=r.filter(c=>c.date===t);
+      const hasOpen=today.some(c=>c.checkType==='opening');
+      const hasClose=today.some(c=>c.checkType==='closing');
+      const hasIssue=today.some(c=>!c.allPresent||!c.allGoodCondition);
+      if(hasOpen&&hasClose&&!hasIssue) return {t:'ok', s:'Both checks done ✓'};
+      if(hasOpen&&hasClose&&hasIssue)  return {t:'warn',s:'Done · issues logged'};
+      if(hasOpen)                      return {t:'warn',s:'Opening done · closing pending'};
+      return {t:'warn',s:'Opening check pending'};
+    }
+  },
+  {
+    id:'plasters',
+    name:'Plaster Log',
+    icon:'🩹',
+    color:'#fce5ec',
+    desc:'Issue and track plasters',
+    statusFn(){
+      const r=ls('knife_plasters_v1');
+      const out=r.filter(p=>p.continueWorking&&!p.accounted).length;
+      if(out>0) return {t:'warn',s:out+' plaster'+(out!==1?'s':'')+' outstanding'};
+      const n=r.filter(p=>p.date===tod()).length;
+      return n?{t:'ok',s:'All accounted for today'}:{t:'muted',s:'No issues today'};
+    }
+  },
+];
+
+// ── Settings ────────────────────────────────────────────────
+let settings = { company:'', urls:{} };
+
+function loadSettings(){
+  try{const d=localStorage.getItem(SK_DASH);if(d)settings={...settings,...JSON.parse(d)};}catch(e){}
+}
+function saveSettings(){
+  settings.company = document.getElementById('s-company').value.trim();
+  TOOLS.forEach(t=>{
+    const el=document.getElementById('url-'+t.id);
+    if(el) settings.urls[t.id]=el.value.trim();
+  });
+  localStorage.setItem(SK_DASH,JSON.stringify(settings));
+  closeSettings();
+  renderHeader();
+  renderGrid();
+  showToast('Settings saved ✓');
+}
+
+// ── Helpers ─────────────────────────────────────────────────
+function tod(){ return new Date().toISOString().slice(0,10); }
+function ls(key){ try{return JSON.parse(localStorage.getItem(key)||'[]');}catch(e){return[];} }
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// ── Render ───────────────────────────────────────────────────
+function renderHeader(){
+  const name = settings.company || 'Kitchen Hub';
+  const parts = name.split(' ');
+  const first = parts.slice(0,-1).join(' ');
+  const last  = parts[parts.length-1];
+  document.getElementById('display-name').innerHTML =
+    first ? `<strong>${first}</strong> ${last}` : `<strong>${last}</strong>`;
+  document.title = name;
+  const now = new Date();
+  document.getElementById('display-date').textContent =
+    now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+}
+
+function renderGrid(){
+  const grid = document.getElementById('tool-grid');
+  grid.innerHTML = TOOLS.map(t=>{
+    const url = settings.urls[t.id]||'';
+    let status = '';
+    try{
+      const s = t.statusFn();
+      if(s) status = `<div class="tool-status"><span class="status-${s.t}">${s.t==='ok'?'✓ ':s.t==='warn'?'⚠ ':''}${s.s}</span></div>`;
+    }catch(e){}
+    if(!status) status='<div class="tool-status"></div>';
+
+    const tag = url ? 'a' : 'div';
+    const href = url ? `href="${url}"` : '';
+    const unconfigured = !url ? 'unconfigured' : '';
+    const configureHint = !url ? '<div class="tool-status"><span class="status-configure">Tap ⚙ to add link</span></div>' : status;
+
+    return`<${tag} class="tool-card ${unconfigured}" ${href} onclick="${url?'':\"openSettings()\"}">
+      <div class="tool-icon-wrap" style="background:${t.color};">${t.icon}</div>
+      <div class="tool-name">${t.name}</div>
+      <div class="tool-desc">${t.desc}</div>
+      ${configureHint}
+    </${tag}>`;
+  }).join('');
+}
+
+// ── Settings panel ───────────────────────────────────────────
+function openSettings(){
+  document.getElementById('s-company').value = settings.company||'';
+  const wrap = document.getElementById('url-inputs');
+  wrap.innerHTML = TOOLS.map(t=>`
+    <div class="settings-row">
+      <span class="settings-row-icon">${t.icon}</span>
+      <span class="settings-row-label">${t.name}</span>
+      <input id="url-${t.id}" type="url" value="${settings.urls[t.id]||''}" placeholder="https://…"/>
+    </div>`).join('');
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('settings-panel').classList.add('open'),10);
+}
+function closeSettings(){
+  document.getElementById('settings-panel').classList.remove('open');
+  setTimeout(()=>document.getElementById('overlay').classList.remove('open'),300);
+}
+
+// ── Live refresh ─────────────────────────────────────────────
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) renderGrid(); });
+
+// ── Boot ─────────────────────────────────────────────────────
+loadSettings();
+renderHeader();
+renderGrid();
+</script>
+</body>
+</html>
