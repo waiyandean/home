@@ -12,29 +12,104 @@
 <meta name="theme-color" content="#1a1916"/>
 <style>
 :root{
-  --bg:#f5f4f0; --surface:#fff; --border:#e0ddd6;
-  --text:#1a1916; --text-muted:#7a776e; --text-hint:#b0ada5;
-  --accent:#1a1916; --accent-fg:#fff;
-  --success-text:#2d6e2d; --warn-text:#8a6500;
-  --radius:12px; --radius-sm:8px; --font:'Lexend',sans-serif;
+  --font:'Lexend',sans-serif;
+  --radius:16px; --radius-sm:10px;
+  --glass-bg:rgba(255,255,255,0.18);
+  --glass-border:rgba(255,255,255,0.35);
+  --glass-shadow:0 8px 32px rgba(0,0,0,0.18);
+  --glass-blur:blur(18px) saturate(1.8);
+  --text:#fff;
+  --text-muted:rgba(255,255,255,0.7);
+  --text-hint:rgba(255,255,255,0.45);
+  --success-text:#a8f0a8;
+  --warn-text:#ffe08a;
 }
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; }
 
-.app-header { background:var(--accent); color:#fff; padding:20px 20px 16px; display:flex; align-items:flex-end; justify-content:space-between; }
-.site-name { font-size:22px; font-weight:300; line-height:1.2; }
+body {
+  font-family:var(--font);
+  min-height:100vh;
+  background: url('wallhaven-gwwywd.jpg') center/cover fixed no-repeat;
+  color:var(--text);
+}
+
+/* Subtle dark overlay so text stays readable */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.28);
+  z-index:0;
+  pointer-events:none;
+}
+
+.app-header {
+  position:relative; z-index:1;
+  background:rgba(0,0,0,0.3);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border-bottom:1px solid rgba(255,255,255,0.15);
+  padding:20px 20px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.site-name { font-size:22px; font-weight:300; line-height:1.2; color:#fff; }
 .site-name b { font-weight:600; }
-.header-date { font-size:11px; opacity:.5; margin-top:3px; font-family:monospace; letter-spacing:.05em; }
-.gear-btn { width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.15); border:none; color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.gear-btn:active { background:rgba(255,255,255,.3); }
+.header-date { font-size:11px; color:rgba(255,255,255,0.5); margin-top:3px; font-family:monospace; letter-spacing:.05em; }
+.gear-btn {
+  width:38px; height:38px; border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.25);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  color:#fff; font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.gear-btn:active { background:rgba(255,255,255,0.28); }
 
-.grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:16px; }
+.grid {
+  position:relative; z-index:1;
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:12px; padding:16px;
+}
 
-.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 14px 14px; text-decoration:none; color:var(--text); display:flex; flex-direction:column; min-height:156px; cursor:pointer; }
-.card:active { opacity:.8; }
-.card.dim { opacity:.45; }
-.card-icon { width:46px; height:46px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:12px; }
-.card-name { font-size:14px; font-weight:500; margin-bottom:4px; }
+/* Liquid glass card */
+.card {
+  background:var(--glass-bg);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  box-shadow:var(--glass-shadow);
+  padding:16px 14px 14px;
+  text-decoration:none;
+  color:var(--text);
+  display:flex; flex-direction:column;
+  min-height:156px; cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  /* inner highlight at top edge for the glass look */
+  position:relative; overflow:hidden;
+}
+.card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+}
+.card:active {
+  transform:scale(0.97);
+  background:rgba(255,255,255,0.26);
+  box-shadow:0 4px 16px rgba(0,0,0,0.22);
+}
+.card.dim { opacity:.55; }
+
+.card-icon {
+  width:46px; height:46px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; margin-bottom:12px;
+  background:rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.3);
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+}
+.card-name { font-size:14px; font-weight:500; margin-bottom:4px; color:#fff; }
 .card-desc { font-size:12px; color:var(--text-muted); flex:1; line-height:1.5; }
 .card-status { margin-top:10px; font-size:11px; font-family:monospace; min-height:16px; }
 .ok   { color:var(--success-text); }
@@ -42,23 +117,60 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
 .hint { color:var(--text-hint); }
 
 /* Modal */
-#modal { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.45); z-index:100; align-items:flex-end; }
-.sheet { background:var(--surface); border-radius:16px 16px 0 0; width:100%; max-height:88vh; display:flex; flex-direction:column; }
-.sheet-head { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-.sheet-head h2 { font-size:16px; font-weight:500; }
-.close-btn { font-size:26px; background:none; border:none; color:var(--text-muted); cursor:pointer; line-height:1; }
+#modal { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:100; align-items:flex-end; }
+.sheet {
+  background:rgba(30,28,25,0.75);
+  backdrop-filter:blur(24px) saturate(1.6);
+  -webkit-backdrop-filter:blur(24px) saturate(1.6);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:20px 20px 0 0;
+  width:100%; max-height:88vh;
+  display:flex; flex-direction:column;
+}
+.sheet-head {
+  padding:16px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+}
+.sheet-head h2 { font-size:16px; font-weight:500; color:#fff; }
+.close-btn { font-size:26px; background:none; border:none; color:rgba(255,255,255,0.5); cursor:pointer; line-height:1; }
 .sheet-body { padding:16px 20px; overflow-y:auto; flex:1; }
-.s-label { font-size:11px; font-family:monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); margin:16px 0 8px; }
+.s-label { font-size:11px; font-family:monospace; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,0.45); margin:16px 0 8px; }
 .s-label:first-child { margin-top:0; }
 .s-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
 .s-row-icon { font-size:18px; width:28px; text-align:center; flex-shrink:0; }
-.s-row-name { font-size:13px; font-weight:500; width:108px; flex-shrink:0; }
-.s-row input, .s-name-input { width:100%; padding:9px 11px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:14px; font-family:var(--font); background:var(--surface); color:var(--text); outline:none; }
-.s-row input:focus, .s-name-input:focus { border-color:var(--accent); }
-.save-btn { width:100%; padding:13px; margin-top:16px; border-radius:var(--radius-sm); background:var(--accent); color:#fff; border:none; font-size:15px; font-family:var(--font); cursor:pointer; }
-.save-btn:active { opacity:.85; }
+.s-row-name { font-size:13px; font-weight:500; width:108px; flex-shrink:0; color:#fff; }
+.s-row input, .s-name-input {
+  width:100%; padding:9px 11px;
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:var(--radius-sm);
+  font-size:14px; font-family:var(--font);
+  background:rgba(255,255,255,0.1);
+  color:#fff; outline:none;
+}
+.s-row input::placeholder, .s-name-input::placeholder { color:rgba(255,255,255,0.3); }
+.s-row input:focus, .s-name-input:focus { border-color:rgba(255,255,255,0.5); }
+.save-btn {
+  width:100%; padding:13px; margin-top:16px;
+  border-radius:var(--radius-sm);
+  background:rgba(255,255,255,0.2);
+  border:1px solid rgba(255,255,255,0.3);
+  color:#fff; font-size:15px; font-family:var(--font); cursor:pointer;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.save-btn:active { background:rgba(255,255,255,0.3); }
 
-.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:10px 20px; border-radius:20px; font-size:13px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:200; white-space:nowrap; }
+.toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+  background:rgba(255,255,255,0.2);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.3);
+  color:#fff; padding:10px 20px; border-radius:20px;
+  font-size:13px; opacity:0; transition:opacity .25s;
+  pointer-events:none; z-index:200; white-space:nowrap;
+}
 .toast.show { opacity:1; }
 </style>
 </head>
@@ -66,7 +178,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
 
 <header class="app-header">
   <div style="display:flex;align-items:center;gap:10px;">
-    <img src="Logo.png" alt="Logo" style="height:32px;object-fit:contain;"/>
+    <img src="Logo.png" alt="Logo" style="height:32px;object-fit:contain;filter:brightness(0) invert(1);"/>
     <div>
       <div class="site-name" id="site-name"><b>Kitchen</b> Hub</div>
       <div class="header-date" id="hdr-date"></div>
@@ -147,7 +259,7 @@ function renderGrid(){
     let st = '';
     try { const s=t.status(); if(s) st=`<span class="${s.c}">${s.c==='ok'?'✓ ':s.c==='warn'?'⚠ ':''}${s.t}</span>`; } catch(e){}
     const body = `
-      <div class="card-icon" style="background:${t.bg}">${t.icon}</div>
+      <div class="card-icon">${t.icon}</div>
       <div class="card-name">${t.name}</div>
       <div class="card-desc">${t.desc}</div>
       <div class="card-status">${st || (url?'':' ')}</div>`;
