@@ -9,7 +9,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Kitchen Hub"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#1a1916"/>
+<link rel="apple-touch-icon" href="home-apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="home-icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="home-icon-512.png" />
 <style>
 :root{
   --font:'Lexend',sans-serif;
@@ -135,12 +139,8 @@ body::before {
 .sheet-head h2 { font-size:16px; font-weight:500; color:#fff; }
 .close-btn { font-size:26px; background:none; border:none; color:rgba(255,255,255,0.5); cursor:pointer; line-height:1; }
 .sheet-body { padding:16px 20px; overflow-y:auto; flex:1; }
-.s-label { font-size:11px; font-family:monospace; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,0.45); margin:16px 0 8px; }
-.s-label:first-child { margin-top:0; }
-.s-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
-.s-row-icon { font-size:18px; width:28px; text-align:center; flex-shrink:0; }
-.s-row-name { font-size:13px; font-weight:500; width:108px; flex-shrink:0; color:#fff; }
-.s-row input, .s-name-input {
+.s-label { font-size:11px; font-family:monospace; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,0.45); margin-bottom:8px; }
+.s-name-input {
   width:100%; padding:9px 11px;
   border:1px solid rgba(255,255,255,0.2);
   border-radius:var(--radius-sm);
@@ -148,8 +148,8 @@ body::before {
   background:rgba(255,255,255,0.1);
   color:#fff; outline:none;
 }
-.s-row input::placeholder, .s-name-input::placeholder { color:rgba(255,255,255,0.3); }
-.s-row input:focus, .s-name-input:focus { border-color:rgba(255,255,255,0.5); }
+.s-name-input::placeholder { color:rgba(255,255,255,0.3); }
+.s-name-input:focus { border-color:rgba(255,255,255,0.5); }
 .save-btn {
   width:100%; padding:13px; margin-top:16px;
   border-radius:var(--radius-sm);
@@ -192,14 +192,12 @@ body::before {
 <div id="modal">
   <div class="sheet">
     <div class="sheet-head">
-      <h2>Configure dashboard</h2>
+      <h2>Site name</h2>
       <button class="close-btn" id="close-btn">×</button>
     </div>
     <div class="sheet-body">
-      <div class="s-label">Site name</div>
+      <div class="s-label">Display name</div>
       <input class="s-name-input" id="s-name" placeholder="e.g. Soho Kitchen"/>
-      <div class="s-label">Tool links</div>
-      <div id="s-urls"></div>
       <button class="save-btn" id="save-btn">Save</button>
     </div>
   </div>
@@ -211,35 +209,37 @@ body::before {
 const SK = 'dashboard_v1';
 
 const TOOLS = [
-  { id:'batch',      name:'Batch Record',    icon:'🧾', bg:'#fdf3e0', desc:'Log production batches',
+  { id:'batch',      name:'Batch Record',    icon:'🧾', desc:'Log production batches',
+    url:'https://waiyandean.github.io/batching/',
     status(){ const r=ls('batch_records_v1'),n=r.filter(x=>x.date===today()).length; return n?{c:'ok',t:n+' batch'+(n!==1?'es':'')+' today'}:{c:'hint',t:'No batches today'}; } },
-  { id:'templog',    name:'Temp Log',        icon:'🌡️', bg:'#fce8e3', desc:'Cooking & cooling checks',
+  { id:'templog',    name:'Temp Log',        icon:'🌡️', desc:'Cooking & cooling checks',
+    url:'https://waiyandean.github.io/batching/temp-log.html',
     status(){ const r=ls('batch_records_v1'),cut=Date.now()-72*36e5,n=r.filter(x=>x.productCategory==='cooked'&&new Date(x.savedAt||x.date)>cut&&(x.cookTemp==null||x.coolTemp==null)).length; return n?{c:'warn',t:n+' check'+(n!==1?'s':'')+' pending'}:{c:'ok',t:'All temps logged'}; } },
-  { id:'deliveries', name:'Deliveries',      icon:'📦', bg:'#e3eff9', desc:'Record incoming deliveries',
+  { id:'deliveries', name:'Deliveries',      icon:'📦', desc:'Record incoming deliveries',
+    url:'https://waiyandean.github.io/deliveries/',
     status(){ const r=ls('delivery_records_v3'),n=r.filter(x=>x.date===today()).length; return n?{c:'ok',t:n+' deliver'+(n!==1?'ies':'y')+' today'}:{c:'hint',t:'No deliveries today'}; } },
-  { id:'dispatch',   name:'Dispatch',        icon:'🚚', bg:'#ece5f5', desc:'Log outgoing orders',
+  { id:'dispatch',   name:'Dispatch',        icon:'🚚', desc:'Log outgoing orders',
+    url:'https://waiyandean.github.io/dispatch/',
     status(){ const r=ls('dispatch_records_v1'),n=r.filter(x=>x.date===today()).length; return n?{c:'ok',t:n+' dispatch'+(n!==1?'es':'')+' today'}:{c:'hint',t:'No dispatches today'}; } },
-  { id:'stockcheck', name:'Stock Check',     icon:'📊', bg:'#e5f2e5', desc:'Check and record stock levels',
+  { id:'stockcheck', name:'Stock Check',     icon:'📊', desc:'Check and record stock levels',
+    url:'https://waiyandean.github.io/stockcheck/',
     status(){ const r=ls('stock_checks_v1'); if(!r.length)return{c:'hint',t:'No checks recorded'}; const d=Math.floor((Date.now()-new Date(r[0].savedAt||r[0].date))/864e5); return d===0?{c:'ok',t:'Checked today'}:d<=7?{c:'hint',t:'Last checked '+d+'d ago'}:{c:'warn',t:'Not checked in '+d+' days'}; } },
-  { id:'knife',      name:'Knife Registry',  icon:'🔪', bg:'#f5e5e5', desc:'Daily knife checks & register',
+  { id:'knife',      name:'Knife Registry',  icon:'🔪', desc:'Daily knife checks & register',
+    url:'https://waiyandean.github.io/equipment/',
     status(){ const r=ls('knife_checks_v1'),t=today(),d=r.filter(c=>c.date===t),o=d.some(c=>c.checkType==='opening'),cl=d.some(c=>c.checkType==='closing'),i=d.some(c=>!c.allPresent||!c.allGoodCondition); if(o&&cl&&!i)return{c:'ok',t:'Both checks done ✓'}; if(o&&cl)return{c:'warn',t:'Done · issues logged'}; if(o)return{c:'warn',t:'Opening done · closing pending'}; return{c:'warn',t:'Opening check pending'}; } },
-  { id:'plasters',   name:'Plaster Log',     icon:'🩹', bg:'#fce5ec', desc:'Issue and track plasters',
+  { id:'plasters',   name:'Plaster Log',     icon:'🩹', desc:'Issue and track plasters',
+    url:'',
     status(){ const r=ls('knife_plasters_v1'),out=r.filter(p=>p.continueWorking&&!p.accounted).length; if(out)return{c:'warn',t:out+' plaster'+(out!==1?'s':'')+' outstanding'}; const n=r.filter(p=>p.date===today()).length; return n?{c:'ok',t:'All accounted for'}:{c:'hint',t:'No issues today'}; } },
 ];
 
-let cfg = { name:'', urls:{} };
+let cfg = { name: '' };
 
 function today(){ return new Date().toISOString().slice(0,10); }
 function ls(k){ try{ return JSON.parse(localStorage.getItem(k)||'[]'); }catch(e){ return []; } }
-function toast(m){ const el=document.getElementById('toast'); el.textContent=m; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2400); }
+function showToast(m){ const el=document.getElementById('toast'); el.textContent=m; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2400); }
 
 function loadCfg(){
   try{ const d=localStorage.getItem(SK); if(d) cfg=Object.assign(cfg,JSON.parse(d)); }catch(e){}
-}
-function saveCfg(){
-  cfg.name = document.getElementById('s-name').value.trim();
-  TOOLS.forEach(t=>{ const el=document.getElementById('si-'+t.id); if(el) cfg.urls[t.id]=el.value.trim(); });
-  localStorage.setItem(SK, JSON.stringify(cfg));
 }
 
 function renderHeader(){
@@ -255,28 +255,21 @@ function renderHeader(){
 function renderGrid(){
   const grid = document.getElementById('grid');
   grid.innerHTML = TOOLS.map(t => {
-    const url = cfg.urls[t.id] || '';
     let st = '';
     try { const s=t.status(); if(s) st=`<span class="${s.c}">${s.c==='ok'?'✓ ':s.c==='warn'?'⚠ ':''}${s.t}</span>`; } catch(e){}
     const body = `
       <div class="card-icon">${t.icon}</div>
       <div class="card-name">${t.name}</div>
       <div class="card-desc">${t.desc}</div>
-      <div class="card-status">${st || (url?'':' ')}</div>`;
-    return url
-      ? `<a class="card" href="${url}">${body}</a>`
-      : `<div class="card dim" onclick="openModal()">${body}</div>`;
+      <div class="card-status">${st}</div>`;
+    return t.url
+      ? `<a class="card" href="${t.url}">${body}</a>`
+      : `<div class="card dim">${body}</div>`;
   }).join('');
 }
 
 function openModal(){
   document.getElementById('s-name').value = cfg.name || '';
-  document.getElementById('s-urls').innerHTML = TOOLS.map(t=>`
-    <div class="s-row">
-      <span class="s-row-icon">${t.icon}</span>
-      <span class="s-row-name">${t.name}</span>
-      <input id="si-${t.id}" type="url" value="${cfg.urls[t.id]||''}" placeholder="https://…"/>
-    </div>`).join('');
   document.getElementById('modal').style.display = 'flex';
 }
 function closeModal(){
@@ -287,11 +280,11 @@ document.getElementById('gear-btn').addEventListener('click', openModal);
 document.getElementById('close-btn').addEventListener('click', closeModal);
 document.getElementById('modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 document.getElementById('save-btn').addEventListener('click', function(){
-  saveCfg();
+  cfg.name = document.getElementById('s-name').value.trim();
+  localStorage.setItem(SK, JSON.stringify(cfg));
   closeModal();
   renderHeader();
-  renderGrid();
-  toast('Settings saved ✓');
+  showToast('Saved ✓');
 });
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) renderGrid(); });
 
