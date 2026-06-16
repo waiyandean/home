@@ -99,12 +99,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 const SK = 'dashboard_v1';
 
 const TOOLS = [
-  { id:'batch',      name:'Batch Record',    icon:'🧾', bg:'#fdf3e0', desc:'Log production batches',
+  { id:'batch',      name:'Sauces Batch Record', icon:'🧾', bg:'#fdf3e0', desc:'Log production batches',
     url:'https://waiyandean.github.io/batching/',
     status(){ const r=ls('batch_records_v1'),n=r.filter(x=>x.date===today()).length; return n?{c:'ok',t:n+' batch'+(n!==1?'es':'')+' today'}:{c:'hint',t:'No batches today'}; } },
-  { id:'templog',    name:'Temp Log',        icon:'🌡️', bg:'#fce8e3', desc:'Cooking & cooling checks',
-    url:'https://waiyandean.github.io/batching/temp-log.html',
-    status(){ const r=ls('batch_records_v1'),cut=Date.now()-72*36e5,n=r.filter(x=>x.productCategory==='cooked'&&new Date(x.savedAt||x.date)>cut&&(x.cookTemp==null||x.coolTemp==null)).length; return n?{c:'warn',t:n+' check'+(n!==1?'s':'')+' pending'}:{c:'ok',t:'All temps logged'}; } },
   { id:'deliveries', name:'Deliveries',      icon:'📦', bg:'#e3eff9', desc:'Record incoming deliveries',
     url:'https://waiyandean.github.io/deliveries/',
     status(){ const r=ls('delivery_records_v3'),n=r.filter(x=>x.date===today()).length; return n?{c:'ok',t:n+' deliver'+(n!==1?'ies':'y')+' today'}:{c:'hint',t:'No deliveries today'}; } },
@@ -117,9 +114,6 @@ const TOOLS = [
   { id:'knife',      name:'Knife Registry',  icon:'🔪', bg:'#f5e5e5', desc:'Daily knife checks & register',
     url:'https://waiyandean.github.io/equipment/',
     status(){ const r=ls('knife_checks_v1'),t=today(),d=r.filter(c=>c.date===t),o=d.some(c=>c.checkType==='opening'),cl=d.some(c=>c.checkType==='closing'),i=d.some(c=>!c.allPresent||!c.allGoodCondition); if(o&&cl&&!i)return{c:'ok',t:'Both checks done ✓'}; if(o&&cl)return{c:'warn',t:'Done · issues logged'}; if(o)return{c:'warn',t:'Opening done · closing pending'}; return{c:'warn',t:'Opening check pending'}; } },
-  { id:'plasters',   name:'Plaster Log',     icon:'🩹', bg:'#fce5ec', desc:'Issue and track plasters',
-    url:'',
-    status(){ const r=ls('knife_plasters_v1'),out=r.filter(p=>p.continueWorking&&!p.accounted).length; if(out)return{c:'warn',t:out+' plaster'+(out!==1?'s':'')+' outstanding'}; const n=r.filter(p=>p.date===today()).length; return n?{c:'ok',t:'All accounted for'}:{c:'hint',t:'No issues today'}; } },
 ];
 
 let cfg = { name: '' };
