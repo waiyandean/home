@@ -36,13 +36,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 .grid{display:grid;grid-template-columns:1fr;gap:10px;padding:16px;max-width:480px;margin:0 auto;}
 
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px 14px;text-decoration:none;color:var(--text);display:flex;flex-direction:column;min-height:156px;cursor:pointer;transition:border-color .12s,background .12s;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-decoration:none;color:var(--text);display:flex;flex-direction:row;align-items:center;gap:14px;cursor:pointer;transition:border-color .12s,background .12s;}
 .card:active{background:var(--bg);border-color:var(--border-strong);}
 .card.dim{opacity:.45;}
-.card-icon{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:12px;}
-.card-name{font-size:14px;font-weight:500;margin-bottom:4px;}
-.card-desc{font-size:12px;color:var(--text-muted);flex:1;line-height:1.5;}
-.card-status{margin-top:10px;font-size:11px;font-family:monospace;min-height:16px;}
+.card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.card-body{flex:1;min-width:0;}
+.card-name{font-size:14px;font-weight:500;margin-bottom:2px;}
+.card-desc{font-size:12px;color:var(--text-muted);line-height:1.4;}
+.card-status{margin-top:4px;font-size:11px;font-family:monospace;}
 .ok{color:var(--success-text);}
 .warn{color:var(--warn-text);}
 .hint{color:var(--text-hint);}
@@ -143,9 +144,11 @@ function renderGrid(){
     try { const s=t.status(); if(s) st=`<span class="${s.c}">${s.c==='ok'?'✓ ':s.c==='warn'?'⚠ ':''}${s.t}</span>`; } catch(e){}
     const body = `
       <div class="card-icon" style="background:${t.bg}">${t.icon}</div>
-      <div class="card-name">${t.name}</div>
-      <div class="card-desc">${t.desc}</div>
-      <div class="card-status">${st}</div>`;
+      <div class="card-body">
+        <div class="card-name">${t.name}</div>
+        <div class="card-desc">${t.desc}</div>
+        <div class="card-status">${st}</div>
+      </div>`;
     return t.url
       ? `<a class="card" href="${t.url}">${body}</a>`
       : `<div class="card dim">${body}</div>`;
