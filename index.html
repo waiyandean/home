@@ -34,7 +34,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .gear-btn{width:34px;height:34px;border-radius:50%;background:var(--bg);border:1px solid var(--border);color:var(--text-muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .gear-btn:active{background:var(--border);}
 
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:16px;}
+.grid{display:grid;grid-template-columns:1fr;gap:10px;padding:16px;max-width:480px;margin:0 auto;}
 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px 14px;text-decoration:none;color:var(--text);display:flex;flex-direction:column;min-height:156px;cursor:pointer;transition:border-color .12s,background .12s;}
 .card:active{background:var(--bg);border-color:var(--border-strong);}
@@ -102,6 +102,9 @@ const TOOLS = [
   { id:'batch',      name:'Sauces Batch Record', icon:'🧾', bg:'#fdf3e0', desc:'Log production batches',
     url:'https://waiyandean.github.io/batching/',
     status(){ const r=ls('batch_records_v1'),n=r.filter(x=>x.date===today()).length; return n?{c:'ok',t:n+' batch'+(n!==1?'es':'')+' today'}:{c:'hint',t:'No batches today'}; } },
+  { id:'knife',      name:'Knife Registry',  icon:'🔪', bg:'#f5e5e5', desc:'Daily knife checks & register',
+    url:'https://waiyandean.github.io/equipment/',
+    status(){ const r=ls('knife_checks_v1'),t=today(),d=r.filter(c=>c.date===t),o=d.some(c=>c.checkType==='opening'),cl=d.some(c=>c.checkType==='closing'),i=d.some(c=>!c.allPresent||!c.allGoodCondition); if(o&&cl&&!i)return{c:'ok',t:'Both checks done ✓'}; if(o&&cl)return{c:'warn',t:'Done · issues logged'}; if(o)return{c:'warn',t:'Opening done · closing pending'}; return{c:'warn',t:'Opening check pending'}; } },
   { id:'deliveries', name:'Deliveries',      icon:'📦', bg:'#e3eff9', desc:'Record incoming deliveries',
     url:'https://waiyandean.github.io/deliveries/',
     status(){ const r=ls('delivery_records_v3'),n=r.filter(x=>x.date===today()).length; return n?{c:'ok',t:n+' deliver'+(n!==1?'ies':'y')+' today'}:{c:'hint',t:'No deliveries today'}; } },
@@ -111,9 +114,6 @@ const TOOLS = [
   { id:'stockcheck', name:'Stock Check',     icon:'📊', bg:'#e5f2e5', desc:'Check and record stock levels',
     url:'https://waiyandean.github.io/stockcheck/',
     status(){ const r=ls('stock_checks_v1'); if(!r.length)return{c:'hint',t:'No checks recorded'}; const d=Math.floor((Date.now()-new Date(r[0].savedAt||r[0].date))/864e5); return d===0?{c:'ok',t:'Checked today'}:d<=7?{c:'hint',t:'Last checked '+d+'d ago'}:{c:'warn',t:'Not checked in '+d+' days'}; } },
-  { id:'knife',      name:'Knife Registry',  icon:'🔪', bg:'#f5e5e5', desc:'Daily knife checks & register',
-    url:'https://waiyandean.github.io/equipment/',
-    status(){ const r=ls('knife_checks_v1'),t=today(),d=r.filter(c=>c.date===t),o=d.some(c=>c.checkType==='opening'),cl=d.some(c=>c.checkType==='closing'),i=d.some(c=>!c.allPresent||!c.allGoodCondition); if(o&&cl&&!i)return{c:'ok',t:'Both checks done ✓'}; if(o&&cl)return{c:'warn',t:'Done · issues logged'}; if(o)return{c:'warn',t:'Opening done · closing pending'}; return{c:'warn',t:'Opening check pending'}; } },
 ];
 
 let cfg = { name: '' };
